@@ -5,7 +5,7 @@ luajit2-2.1-20190221, lua-resty-core v0.1.16rc4, lua-resty-core 0.1.16
 
 
 behavior:
-lua drop-dead halt and cpu 100%
+lua Infinite loop and cpu 100%
 
 
 gbd result:
