@@ -1,0 +1,62 @@
+
+
+Centos6.5, kernel 2.6.32-754.2.1.el6.x86_64, nginx 1.14.2
+luajit2-2.1-20190221, lua-resty-core v0.1.16rc4, lua-resty-core 0.1.16
+
+
+behavior:
+lua drop-dead halt and cpu 100%
+
+
+gbd result:
+#0  ctype_raw (L=0x416691f8, cd=0x40fef868) at lj_ctype.h:420
+#1  lj_ccall_func (L=0x416691f8, cd=0x40fef868) at lj_ccall.c:1148
+#2  0x00000000004d1076 in lj_cf_ffi_meta___call (L=0x416691f8) at lib_ffi.c:230
+#3  0x00000000004d2fd7 in lj_BC_FUNCC ()
+#4  0x000000000049bfc6 in ngx_http_lua_run_thread (L=0x41654378, r=0x1cc8290, ctx=0x1cc8eb8, nrets=0)
+    at /tmp/luajit-bug-report/lua-nginx-module-0.10.14/src/ngx_http_lua_util.c:1084
+#5  0x000000000049d968 in ngx_http_lua_content_by_chunk (L=0x41654378, r=0x1cc8290) at /tmp/luajit-bug-report/lua-nginx-module-0.10.14/src/ngx_http_lua_contentby.c:122
+#6  0x000000000049da4e in ngx_http_lua_content_handler_inline (r=0x1cc8290) at /tmp/luajit-bug-report/lua-nginx-module-0.10.14/src/ngx_http_lua_contentby.c:312
+#7  0x000000000049dd14 in ngx_http_lua_content_handler (r=0x1cc8290) at /tmp/luajit-bug-report/lua-nginx-module-0.10.14/src/ngx_http_lua_contentby.c:224
+#8  0x0000000000442323 in ngx_http_core_content_phase (r=0x1cc8290, ph=0x1ce02a8) at src/http/ngx_http_core_module.c:1169
+#9  0x000000000043ccd3 in ngx_http_core_run_phases (r=0x1cc8290) at src/http/ngx_http_core_module.c:858
+#10 0x000000000043cde6 in ngx_http_handler (r=<value optimized out>) at src/http/ngx_http_core_module.c:841
+#11 0x0000000000444cdf in ngx_http_process_request (r=0x1cc8290) at src/http/ngx_http_request.c:1952
+#12 0x000000000044684c in ngx_http_process_request_headers (rev=<value optimized out>) at src/http/ngx_http_request.c:1379
+#13 0x0000000000446cce in ngx_http_process_request_line (rev=0x1ce23a0) at src/http/ngx_http_request.c:1052
+#14 0x0000000000446fb2 in ngx_http_keepalive_handler (rev=0x1ce23a0) at src/http/ngx_http_request.c:3238
+#15 0x0000000000439cde in ngx_epoll_process_events (cycle=<value optimized out>, timer=<value optimized out>, flags=<value optimized out>)
+    at src/event/modules/ngx_epoll_module.c:902
+#16 0x00000000004319d7 in ngx_process_events_and_timers (cycle=0x1cc4070) at src/event/ngx_event.c:242
+#17 0x000000000043824c in ngx_worker_process_cycle (cycle=0x1cc4070, data=<value optimized out>) at src/os/unix/ngx_process_cycle.c:750
+#18 0x0000000000436a38 in ngx_spawn_process (cycle=0x1cc4070, proc=0x4381db <ngx_worker_process_cycle>, data=0x1, name=0x515be8 "worker process", respawn=-3)
+    at src/os/unix/ngx_process.c:199
+#19 0x00000000004376f8 in ngx_start_worker_processes (cycle=0x1cc4070, n=2, type=-3) at src/os/unix/ngx_process_cycle.c:359
+#20 0x000000000043879d in ngx_master_process_cycle (cycle=0x1cc4070) at src/os/unix/ngx_process_cycle.c:131
+#21 0x0000000000414c4a in main (argc=<value optimized out>, argv=<value optimized out>) at src/core/nginx.c:382
+(gdb) f 0
+#0  ctype_raw (L=0x416691f8, cd=0x40fef868) at lj_ctype.h:420
+420   while (ctype_isattrib(ct->info)) ct = ctype_child(cts, ct);
+
+
+LuaJIT:
+    make install CCDEBUG=-g XCFLAGS='-msse4.2' PREFIX=/opt/luajit
+
+nginx install:
+    cd /tmp
+    wget http://nginx.org/download/nginx-1.14.2.tar.gz;tar -zxvf nginx-1.14.2.tar.gz
+    wget https://github.com/openresty/lua-nginx-module/archive/v0.10.14.tar.gz;tar -zxvf v0.10.14.tar.gz
+    wget https://codeload.github.com/simplresty/ngx_devel_kit/tar.gz/v0.3.1rc1;tar -zxvf v0.3.1rc1
+    cd /tmp/nginx-1.14.2/
+    ./configure  --prefix=/usr/local/nginx --add-module=/tmp/ngx_devel_kit-0.3.1rc1 --add-module=/tmp/lua-nginx-module-0.10.14
+
+Steps:
+# git clone git@github.com:zx827882285/luajit-bug-report.git;
+# cp luajit-bug-report/nginx.conf /usr/local/nginx/conf
+# cp luajit-bug-report/lua /usr/local/nginx -rf
+# /usr/local/nginx/sbin/nginx
+# curl  http://localhost/set;./wrk -t4 -c120 -d10  http://localhost/
+# top
+
+instructions:
+    a.lua and b.lua belong to company, I delete some function. until behavior can't be occur when i delete code
