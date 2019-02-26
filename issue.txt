@@ -49,14 +49,15 @@ nginx install:
     wget https://codeload.github.com/simplresty/ngx_devel_kit/tar.gz/v0.3.1rc1;tar -zxvf v0.3.1rc1
     cd /tmp/nginx-1.14.2/
     ./configure  --prefix=/usr/local/nginx --add-module=/tmp/ngx_devel_kit-0.3.1rc1 --add-module=/tmp/lua-nginx-module-0.10.14
+    make install
 
 Steps:
-# git clone git@github.com:zx827882285/luajit-bug-report.git;
-# cp luajit-bug-report/nginx.conf /usr/local/nginx/conf
-# cp luajit-bug-report/lua /usr/local/nginx -rf
-# /usr/local/nginx/sbin/nginx
-# curl  http://localhost/set;./wrk -t4 -c120 -d10  http://localhost/
-# top
+    git clone git@github.com:zx827882285/luajit-bug-report.git;
+    cp luajit-bug-report/nginx.conf /usr/local/nginx/conf
+    cp luajit-bug-report/lua /usr/local/nginx -rf
+    /usr/local/nginx/sbin/nginx
+    curl  http://localhost/set;./wrk -t4 -c120 -d10  http://localhost/
+    top
 
 instructions:
     Sorry, it is difficult to occur, if I delete some code or function, it may not occur
