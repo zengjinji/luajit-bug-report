@@ -22,5 +22,5 @@ cd nginx-1.14.2/
 make install
 
 #### start
-cd $path
-./nginx/sbin/nginx -p . -c nginx.conf
+#cd $path
+#./nginx/sbin/nginx -p . -c nginx.conf
